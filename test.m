@@ -52,5 +52,13 @@ for i=1:length(celllinesarray)
         expressionFile=strcat('NCI60exp/',strcat(expressionFile,'.csv'));
         
         runeMOMA(model,expressionFile,outputFile);
+        v_solex=zeros(length(jainmetsarray),1);
+         fprintf(outputFI,'All fluxes from v_solex:\n');
+    for j=1:length(v_solex)
+        met=jainmetstomets(jainmetsarray{j});
+        rxninds=uniquemetstorxninds(met);
+        v_solex(j)=sum(v_solrev(rxninds));
+        fprintf(outputFI,'%s\t%f\n',jainmetsarray{j},v_solex(j));
+    end
     end
 end
