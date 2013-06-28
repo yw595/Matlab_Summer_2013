@@ -5,8 +5,8 @@ jainmetsarray=exctextarray(10:100,1);
 metsarray=exctextarray(10:100,2);
 jainmetstomets=containers.Map(jainmetsarray,metsarray);
 uniquemetsarray=values(jainmetstomets);
-celllinesarray=exctextarray(9,10:2:128);
 uniquemetstorxninds=containers.Map;
+celllinesarray=exctextarray(9,10:2:128);
 model=rec2;
 
 for i=1:length(metsarray)
@@ -43,22 +43,33 @@ end
 
 for i=1:length(celllinesarray)
     if(~strcmp(celllinesarray{i},'MDA-MB-468') && ~strcmp(celllinesarray{i},'RXF 393'))
-        expressionFile=strrep(expressionarray{i},'(','_');
+        expressionFile=strrep(celllinesarray{i},'(','_');
         expressionFile=strrep(expressionFile,')','_');
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        outputFile=strcat(strcat('eMOMACorrout2/',expressionFile),'out');
-        expressionFile=strcat('NCI60exp/',strcat(expressionFile,'.csv'));
+        outputFile=['../eMOMACorroutscrambled/' expressionFile 'out'];
+        expressionFile=['../NCI60expscrambled/' expressionFile '.csv'];
+        outputFI=fopen(outputFile,'w');
         
-        runeMOMA(model,expressionFile,outputFile);
+        [v_solirrev v_solrev]=runeMOMA(model,expressionFile);
+        
+        fprintf(outputFI,'All fluxes from v_solirrev:\n');
+        for j=1:length(v_solirrev)
+            fprintf(outputFI,'%d\t%f\n',j,v_solirrev(j));
+        end
+        fprintf(outputFI,'All fluxes from v_solrev:\n');
+        for j=1:length(v_solrev)
+            fprintf(outputFI,'%d\t%f\n',j,v_solrev(j));
+        end
         v_solex=zeros(length(jainmetsarray),1);
-         fprintf(outputFI,'All fluxes from v_solex:\n');
-    for j=1:length(v_solex)
-        met=jainmetstomets(jainmetsarray{j});
-        rxninds=uniquemetstorxninds(met);
-        v_solex(j)=sum(v_solrev(rxninds));
-        fprintf(outputFI,'%s\t%f\n',jainmetsarray{j},v_solex(j));
-    end
+        fprintf(outputFI,'All fluxes from v_solex:\n');
+        for j=1:length(v_solex)
+            met=jainmetstomets(jainmetsarray{j});
+            rxninds=uniquemetstorxninds(met);
+            v_solex(j)=sum(v_solrev(rxninds));
+            fprintf(outputFI,'%s\t%f\n',jainmetsarray{j},v_solex(j));
+        end
+        fclose(outputFI);
     end
 end

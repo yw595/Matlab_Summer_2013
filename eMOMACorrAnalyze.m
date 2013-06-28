@@ -2,8 +2,9 @@
 [height width]=size(excnumarray);
 subexcnumarray=excnumarray(8:98,8:width);
 celllinesarray=exctextarray(9,10:2:128);
-outputfile='../eMOMACorrsummarize2/excludelowcoresummary.txt';
+outputfile='../eMOMACorrsummarize2/onlyhighcoresummary.txt';
 outputFI=fopen(outputfile,'w');
+
 celllinesarray2={};
 allpearsonrho=[];
 allspearmanrho=[];
@@ -26,7 +27,7 @@ for i=1:length(celllinesarray)
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        inputfile=strcat(strcat('../eMOMACorrout2/',expressionFile),'out');
+        inputfile=['../eMOMACorrout2/' expressionFile 'out'];
         inputFI=fopen(inputfile,'r');
         
         line=fgetl(inputFI);
@@ -44,8 +45,9 @@ for i=1:length(celllinesarray)
         end
         
         subexcarrayabs=abs(subexcnumarray(:,i*2));
-        subexcarraysign=sign(subexcnumarray(:,i*2));
-        sortsubexcarrayabs=sort(subexcarrayabs);
+        %subexcarraysign=sign(subexcnumarray(:,i*2));
+        [sortsubexcarrayabs sortInds]=sort(subexcarrayabs);
+        %subexcnumarray(sortInds(end-10:end),i*2)
         
         uptaketruepos=0;
         uptakefalseneg=0;
@@ -59,16 +61,18 @@ for i=1:length(celllinesarray)
         numexcludedfromlowcore=0;
         includedinds=[];
         
-        for j=1:size(subexcnumarray(:,i*2),1)
+        disp([celllinesarray{i} '\t']);
+        for k=0:9%1:size(subexcnumarray(:,i*2),1)
+            j=sortInds(end-k);
             %if(abs(inputvals(j))<.00001)
             %    numexcludedfromlowcalc=numexcludedfromlowcalc+1;
             %if(subexcarray(j,i*2)>0 && excarray(j+7,3)==0)
             %    numexcludedfromfva=numexcludedfromfva+1;
             %elseif(subexcarray(j,i*2)<0 && excarray(j+7,1)==0)
             %    numexcludedfromfva=numexcludedfromfva+1;
-            if(abs(subexcnumarray(j,i*2))<=.0001)
-                numexcludedfromlowcore=numexcludedfromlowcore+1;
-            elseif(subexcnumarray(j,i*2)>0)
+            %if(abs(subexcnumarray(j,i*2))<=.0001)
+            %    numexcludedfromlowcore=numexcludedfromlowcore+1;
+            if(subexcnumarray(j,i*2)>0)
                 numreleasing=numreleasing+1;
                 includedinds(end+1)=j;
                 if(inputvals(j)>0)
@@ -88,6 +92,7 @@ for i=1:length(celllinesarray)
                 numzero=numzero+1;
                 includedinds(end+1)=j;
             end
+            disp([exctextarray{9+j} ' ' num2str(subexcnumarray(j,i*2)) ' ' num2str(inputvals(j))]);
         end
         %includedinds
         uptakefalsepos=releasefalseneg;
@@ -97,6 +102,7 @@ for i=1:length(celllinesarray)
         
         uptakesens=uptaketruepos/(uptaketruepos+uptakefalseneg);
         releasesens=releasetruepos/(releasetruepos+releasefalseneg);
+        disp([num2str(uptakesens) ' ' num2str(releasesens)]);
         
         [emomapearsonrho emomapearsonpval]=corr(inputvals(includedinds),subexcnumarray(includedinds,i*2),'type','Pearson');
         [emomaspearmanrho emomaspearmanpval]=corr(inputvals(includedinds),subexcnumarray(includedinds,i*2),'type','Spearman');
@@ -119,7 +125,7 @@ for i=1:length(celllinesarray)
         allnumexcludedfromlowcore(end+1)=numexcludedfromlowcore;
         celllinesarray2{end+1}=celllinesarray{i};
         
-        fprintf(outputFI,'%s\n',celllinesarray{i}); 
+        fprintf(outputFI,'%s\n',celllinesarray2{end}); 
         fprintf(outputFI,'pearson corr: %f\n', emomapearsonrho);
         fprintf(outputFI,'spearman corr: %f\n', emomaspearmanrho);
         fprintf(outputFI,'kendall corr: %f\n', emomakendallrho);
@@ -146,7 +152,7 @@ allnumexcludedfromlowcalc(end+1)=mean(allnumexcludedfromlowcalc);
 allnumexcludedfromfva(end+1)=mean(allnumexcludedfromfva);
 allnumexcludedfromlowcore(end+1)=mean(allnumexcludedfromlowcore);
 celllinesarray2{end+1}='Average';
-fprintf(outputFI,'%s\n',celllinesarray{end}); 
+fprintf(outputFI,'%s\n',celllinesarray2{end}); 
 fprintf(outputFI,'pearson corr: %f\n', allpearsonrho(end));
 fprintf(outputFI,'spearman corr: %f\n', allspearmanrho(end));
 fprintf(outputFI,'kendall corr: %f\n', allkendallrho(end));
@@ -169,7 +175,7 @@ for i=1:length(outputstograph)
     set(gca,'Ylim',ylimstograph{i});
     title(stringstograph{i});
     xticklabel_rotate;
-    saveas(a,strcat('../eMOMACorrsummarize2/',strcat(stringstograph{i},'excludelowcore.png')));
+    saveas(a,['../eMOMACorrsummarize2/' stringstograph{i} 'onlyhighcore.png']);
 end
 
 
