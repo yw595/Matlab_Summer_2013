@@ -3,7 +3,7 @@ function runeMOMA(model,expressionFile,outputFile)
 [rxn_exp,rxn_exp_sd,rxn_rule_group]=computeMinDisj(modelIrrev,expressionFile);
 [v_solirrev, corrval, nvar]=eMOMA6Yiping(modelIrrev,rxn_exp,rxn_exp_sd,rxn_rule_group,{'pyruvate kinase'},0,{1});
 
-outputFI=fopen(outputfile,'w');
+outputFI=fopen(outputFile,'w');
 fprintf(outputFI,'All fluxes from v_sol:\n');
 for j=1:length(v_solirrev)
     fprintf(outputFI,'%d\t%f\n',j,v_solirrev(j));
