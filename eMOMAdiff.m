@@ -1,4 +1,4 @@
-function [v_soldiffabssorted sortInds] = eMOMAdiff(inputFile1, inputFile2)
+function [v_soldiffsorted sortInds] = eMOMAdiff(inputFile1, inputFile2)
 inputFI1=fopen(inputFile1,'r');
 inputFI2=fopen(inputFile2,'r');
 
@@ -20,5 +20,6 @@ while line1~=-1
     line2=fgetl(inputFI2);
 end
 [v_soldiffabssorted sortInds]=sort(abs(v_soldiff));
+v_soldiffsorted=v_soldiff(sortInds);
 end
 

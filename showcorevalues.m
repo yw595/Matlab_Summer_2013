@@ -62,13 +62,13 @@ for i=1:length(celllinesarray)
         allprctiles(:,i)=prctile(sortedabscorevalues,0:5:100);
     end
 end
-allnumzerodiffs(end+1)=mean(allnumzerodiffs);
+allnumcorezero(end+1)=mean(allnumcorezero);
 celllinesarray2{end+1}='Average';
 figure('Position',[300, 300, 1200, 500]);
-a=bar(1:59,allnumzerodiffs);
+a=bar(1:59,allnumcorezero);
 set(gca,'XTickLabel',celllinesarray2);
 set(gca,'XTick',1:59);
-set(gca,'Ylim',[-7 7]);
+set(gca,'Ylim',[0 40]);
 xticklabel_rotate;
     %saveas(a,strcat('eMOMACorrsummarize2/',strcat(stringstograph{i},'.png')));
 allprctiles

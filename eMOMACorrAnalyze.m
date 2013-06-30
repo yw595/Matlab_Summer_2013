@@ -20,6 +20,13 @@ allnumexcludedfromlowcalc=[];
 allnumexcludedfromfva=[];
 allnumexcludedfromlowcore=[];
 
+largestFluxes={};
+for k=1:10
+    largestFluxes{k}=containers.Map;
+end
+largestFluxesToAverages=containers.Map;
+largestFluxesToCalcAverages=containers.Map;
+
 for i=1:length(celllinesarray)
     if(~strcmp(celllinesarray{i},'MDA-MB-468') && ~strcmp(celllinesarray{i},'RXF 393'))
         expressionFile=strrep(celllinesarray{i},'(','_');
@@ -92,6 +99,23 @@ for i=1:length(celllinesarray)
                 numzero=numzero+1;
                 includedinds(end+1)=j;
             end
+            kthlargestFluxMap=largestFluxes{k+1};
+            if(~isKey(kthlargestFluxMap,exctextarray{9+j}))
+                kthlargestFluxMap(exctextarray{9+j})=1;
+            else
+                kthlargestFluxMap(exctextarray{9+j})=kthlargestFluxMap(exctextarray{9+j})+1;
+            end
+            if(~isKey(largestFluxesToAverages,exctextarray{9+j}))
+                largestFluxesToAverages(exctextarray{9+j})=[num2str(subexcnumarray(j,i*2)) 1];
+                largestFluxesToCalcAverages(exctextarray{9+j})=[inputvals(j) 1];
+            else
+                temp1=largestFluxesToAverages(exctextarray{9+j});
+                largestFluxesToAverages(exctextarray{9+j})=...
+                [temp1(1)+subexcnumarray(j,i*2) temp1(2)+1];
+                temp2=largestFluxesToCalcAverages(exctextarray{9+j});
+                largestFluxesToCalcAverages(exctextarray{9+j})=...
+                [temp2(1)+inputvals(j) temp2(2)+1];
+            end
             disp([exctextarray{9+j} ' ' num2str(subexcnumarray(j,i*2)) ' ' num2str(inputvals(j))]);
         end
         %includedinds
@@ -138,6 +162,25 @@ for i=1:length(celllinesarray)
         numreleasing,numuptaking,numzero, numexcludedfromlowcalc, numexcludedfromfva, numexcludedfromlowcore);
     end
 end
+for i=1:length(largestFluxes)
+    ithlargestFluxMap=largestFluxes{i};
+    dispstr='';
+    ithkeys=keys(ithlargestFluxMap);
+    for j=1:length(ithkeys)
+        dispstr=[dispstr ithkeys{j} ' ' num2str(ithlargestFluxMap(ithkeys{j})) ' '];
+    end
+    disp(dispstr);
+end
+largestFluxesToAveragesKeys=keys(largestFluxesToAverages);
+for i=1:length(largestFluxesToAveragesKeys)
+    ithkey=largestFluxesToAveragesKeys{i};
+    ithvaluearray1=largestFluxesToAverages(ithkey);
+    ithvaluearray2=largestFluxesToCalcAverages(ithkey);
+    largestFluxesToAverages(ithkey)=ithvaluearray1(1)/ithvaluearray1(2);
+    largestFluxesToCalcAverages(ithkey)=ithvaluearray2(1)/ithvaluearray2(2);
+    disp([ithkey ' ' num2str(largestFluxesToAverages(ithkey)) ' ' num2str(largestFluxesToCalcAverages(ithkey))]);
+end
+
 allpearsonrho(end+1)=mean(allpearsonrho);
 allspearmanrho(end+1)=mean(allspearmanrho);
 allkendallrho(end+1)=mean(allkendallrho);
