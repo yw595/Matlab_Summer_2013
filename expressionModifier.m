@@ -9,7 +9,7 @@ while line~=-1
         [startIndex1,endIndex1]=regexp(line,'\t(.)*\t');
         mean=strtrim(line(startIndex1:endIndex1));
         newmean=factor*str2num(line(startIndex1:endIndex1));
-        [startIndex2,endIndex2]=regexp(line,'\t(\d)*.(\d)*$');
+        [startIndex2,endIndex2]=regexp(line,'\t(\d)*(\.)?(\d)*$');
         sd=strtrim(line(startIndex2:endIndex2));
         line=[num2str(geneID),'\t',num2str(newmean),'\t',sd];
     end

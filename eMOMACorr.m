@@ -1,4 +1,4 @@
-[excnumarray exctextarray raw]=xlsread('Supp Table 3 A community-driven global reconstruction of human metabolism 95.xls');
+[excnumarray exctextarray raw]=xlsread('../Supp Table 3 A community-driven global reconstruction of human metabolism 95.xls');
 [height width]=size(excnumarray);
 subexcnumarray=excnumarray(8:98,8:width);
 jainmetsarray=exctextarray(10:100,1);
@@ -7,7 +7,7 @@ jainmetstomets=containers.Map(jainmetsarray,metsarray);
 uniquemetsarray=values(jainmetstomets);
 uniquemetstorxninds=containers.Map;
 celllinesarray=exctextarray(9,10:2:128);
-model=rec2;
+model=constrainexchange(rec2);
 
 for i=1:length(metsarray)
     if(strcmp(metsarray{i},'34hpp'))
@@ -48,8 +48,8 @@ for i=1:length(celllinesarray)
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        outputFile=['../eMOMACorroutscrambled/' expressionFile 'out'];
-        expressionFile=['../NCI60expscrambled/' expressionFile '.csv'];
+        outputFile=['../eMOMACorroutconstrained/' expressionFile 'out'];
+        expressionFile=['../NCI60exp/' expressionFile '.csv'];
         outputFI=fopen(outputFile,'w');
         
         [v_solirrev v_solrev]=runeMOMA(model,expressionFile);

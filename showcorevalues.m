@@ -16,7 +16,7 @@ for i=1:length(celllinesarray)
         expressionFile=strrep(expressionFile,'-','_');
         celllinesarray2{end+1}=celllinesarray{i};
         
-        inputfile=strcat(strcat('../eMOMACorrout2/',expressionFile),'out');
+        inputfile=strcat(strcat('../eMOMACorroutconstrained/',expressionFile),'out');
         inputFI=fopen(inputfile,'r');
         corevalues=subexcnumarray(:,i*2);
         abscorevalues=abs(corevalues);
@@ -62,10 +62,10 @@ for i=1:length(celllinesarray)
         allprctiles(:,i)=prctile(sortedabscorevalues,0:5:100);
     end
 end
-allnumcorezero(end+1)=mean(allnumcorezero);
+allnumzerodiffs(end+1)=mean(allnumzerodiffs);
 celllinesarray2{end+1}='Average';
 figure('Position',[300, 300, 1200, 500]);
-a=bar(1:59,allnumcorezero);
+a=bar(1:59,allnumzerodiffs);
 set(gca,'XTickLabel',celllinesarray2);
 set(gca,'XTick',1:59);
 set(gca,'Ylim',[0 40]);

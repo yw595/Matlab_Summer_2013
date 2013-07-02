@@ -2,7 +2,7 @@
 [height width]=size(excnumarray);
 subexcnumarray=excnumarray(8:98,8:width);
 celllinesarray=exctextarray(9,10:2:128);
-outputfile='../eMOMACorrsummarize2/summaryexcludelowcalcFVA.txt';
+outputfile='../eMOMACorrsummarizeconstrained/onlyhighcoresummary.txt';
 outputFI=fopen(outputfile,'w');
 
 celllinesarray2={};
@@ -20,6 +20,14 @@ allnumexcludedfromlowcalc=[];
 allnumexcludedfromfva=[];
 allnumexcludedfromlowcore=[];
 
+largestFluxes={};
+for k=1:10
+    largestFluxes{k}=containers.Map;
+end
+largestFluxesToAverages=containers.Map;
+largestFluxesToCalcAverages=containers.Map;
+largestFluxesToMistakes=containers.Map;
+
 for i=1:length(celllinesarray)
     if(~strcmp(celllinesarray{i},'MDA-MB-468') && ~strcmp(celllinesarray{i},'RXF 393'))
         expressionFile=strrep(celllinesarray{i},'(','_');
@@ -27,7 +35,7 @@ for i=1:length(celllinesarray)
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        inputfile=['../eMOMACorrout2/' expressionFile 'out'];
+        inputfile=['../eMOMACorroutconstrained/' expressionFile 'out'];
         inputFI=fopen(inputfile,'r');
         
         line=fgetl(inputFI);
@@ -62,16 +70,17 @@ for i=1:length(celllinesarray)
         includedinds=[];
         
         disp([celllinesarray{i} '\t']);
-        for j=1:size(subexcnumarray(:,i*2),1)
-            if(abs(inputvals(j))<.00001)
-                numexcludedfromlowcalc=numexcludedfromlowcalc+1;
-            elseif(subexcnumarray(j,i*2)>0 && excnumarray(j+7,3)==0)
-                numexcludedfromfva=numexcludedfromfva+1;
-            elseif(subexcnumarray(j,i*2)<0 && excnumarray(j+7,1)==0)
-                numexcludedfromfva=numexcludedfromfva+1;
-            %elseif(abs(subexcnumarray(j,i*2))<=.0001)
+        for k=0:9%1:size(subexcnumarray(:,i*2),1)
+            j=sortInds(end-k);
+            %if(abs(inputvals(j))<.00001)
+            %    numexcludedfromlowcalc=numexcludedfromlowcalc+1;
+            %if(subexcarray(j,i*2)>0 && excarray(j+7,3)==0)
+            %    numexcludedfromfva=numexcludedfromfva+1;
+            %elseif(subexcarray(j,i*2)<0 && excarray(j+7,1)==0)
+            %    numexcludedfromfva=numexcludedfromfva+1;
+            %if(abs(subexcnumarray(j,i*2))<=.0001)
             %    numexcludedfromlowcore=numexcludedfromlowcore+1;
-            elseif(subexcnumarray(j,i*2)>0)
+            if(subexcnumarray(j,i*2)>0)
                 numreleasing=numreleasing+1;
                 includedinds(end+1)=j;
                 if(inputvals(j)>0)
@@ -91,6 +100,31 @@ for i=1:length(celllinesarray)
                 numzero=numzero+1;
                 includedinds(end+1)=j;
             end
+            kthlargestFluxMap=largestFluxes{k+1};
+            if(~isKey(kthlargestFluxMap,exctextarray{9+j}))
+                kthlargestFluxMap(exctextarray{9+j})=1;
+            else
+                kthlargestFluxMap(exctextarray{9+j})=kthlargestFluxMap(exctextarray{9+j})+1;
+            end
+            if(~isKey(largestFluxesToAverages,exctextarray{9+j}))
+                largestFluxesToAverages(exctextarray{9+j})=[num2str(subexcnumarray(j,i*2)) 1];
+                largestFluxesToCalcAverages(exctextarray{9+j})=[inputvals(j) 1];
+                largestFluxesToMistakes(exctextarray{9+j})=0;
+                if(sign(subexcnumarray(j,i*2))~=sign(inputvals(j)))
+                    largestFluxesToMistakes(exctextarray{9+j})=largestFluxesToMistakes(exctextarray{9+j})+1;
+                end
+            else
+                temp1=largestFluxesToAverages(exctextarray{9+j});
+                largestFluxesToAverages(exctextarray{9+j})=...
+                [temp1(1)+subexcnumarray(j,i*2) temp1(2)+1];
+                temp2=largestFluxesToCalcAverages(exctextarray{9+j});
+                largestFluxesToCalcAverages(exctextarray{9+j})=...
+                [temp2(1)+inputvals(j) temp2(2)+1];
+                if(sign(subexcnumarray(j,i*2))~=sign(inputvals(j)))
+                    largestFluxesToMistakes(exctextarray{9+j})=largestFluxesToMistakes(exctextarray{9+j})+1;
+                end
+            end
+            disp([exctextarray{9+j} ' ' num2str(subexcnumarray(j,i*2)) ' ' num2str(inputvals(j))]);
         end
         %includedinds
         uptakefalsepos=releasefalseneg;
@@ -136,6 +170,30 @@ for i=1:length(celllinesarray)
         numreleasing,numuptaking,numzero, numexcludedfromlowcalc, numexcludedfromfva, numexcludedfromlowcore);
     end
 end
+for i=1:length(largestFluxes)
+    ithlargestFluxMap=largestFluxes{i};
+    dispstr='';
+    ithkeys=keys(ithlargestFluxMap);
+    for j=1:length(ithkeys)
+        dispstr=[dispstr ithkeys{j} ' ' num2str(ithlargestFluxMap(ithkeys{j})) ' '];
+    end
+    disp(dispstr);
+end
+largestFluxesToAveragesKeys=keys(largestFluxesToAverages);
+for i=1:length(largestFluxesToAveragesKeys)
+    ithkey=largestFluxesToAveragesKeys{i};
+    ithvaluearray1=largestFluxesToAverages(ithkey);
+    ithvaluearray2=largestFluxesToCalcAverages(ithkey);
+    largestFluxesToAverages(ithkey)=ithvaluearray1(1)/ithvaluearray1(2);
+    largestFluxesToCalcAverages(ithkey)=ithvaluearray2(1)/ithvaluearray2(2);
+    disp([ithkey ' ' num2str(largestFluxesToAverages(ithkey)) ' ' num2str(largestFluxesToCalcAverages(ithkey))]);
+end
+largestFluxesToMistakesKeys=keys(largestFluxesToAverages);
+for i=1:length(largestFluxesToMistakesKeys)
+    ithkey=largestFluxesToMistakesKeys{i};
+    disp([ithkey ' ' num2str(largestFluxesToMistakes(ithkey))]);
+end
+
 
 allpearsonrho(end+1)=mean(allpearsonrho);
 allspearmanrho(end+1)=mean(allspearmanrho);
@@ -174,7 +232,7 @@ for i=1:length(outputstograph)
     set(gca,'Ylim',ylimstograph{i});
     title(stringstograph{i});
     xticklabel_rotate;
-    saveas(a,['../eMOMACorrsummarize2/' stringstograph{i} 'excludelowcalcFVA.png']);
+    saveas(a,['../eMOMACorrsummarizeconstrained/' stringstograph{i} 'onlyhighcore.png']);
 end
 
 
