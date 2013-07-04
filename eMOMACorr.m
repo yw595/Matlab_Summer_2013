@@ -48,7 +48,7 @@ for i=1:length(celllinesarray)
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        outputFile=['../eMOMACorroutconstrained/' expressionFile 'out'];
+        outputFile=['../eMOMACorroutconstrainedextra/' expressionFile 'out'];
         expressionFile=['../NCI60exp/' expressionFile '.csv'];
         outputFI=fopen(outputFile,'w');
         

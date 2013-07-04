@@ -1,4 +1,4 @@
-function [v_solfinratiossorted v_solfindiffssorted finInds v_solinfdiffssorted infInds v_soldiffs v_solratios] = eMOMAdiff(inputFile1, inputFile2)
+function [v_sol1 v_sol2 v_soldiffs v_solratios v_solfinratiossorted v_solfindiffssorted finInds v_solinfdiffssorted infInds] = eMOMAdiff(inputFile1, inputFile2)
 inputFI1=fopen(inputFile1,'r');
 inputFI2=fopen(inputFile2,'r');
 
@@ -16,8 +16,8 @@ while line1~=-1
         startindex2=regexp(line2,'(\-|\d|\.)+$');
         v_sol1(end+1)=str2num(line1(startindex1:length(line1)));
         v_sol2(end+1)=str2num(line2(startindex2:length(line2)));
-        v_soldiffs(end+1)=str2num(line1(startindex1:length(line1)))-str2num(line2(startindex2:length(line2)));
-        v_solratios(end+1)=(str2num(line1(startindex1:length(line1)))-str2num(line2(startindex2:length(line2))))/(str2num(line1(startindex1:length(line1))));
+        v_soldiffs(end+1)=str2num(line2(startindex2:length(line2)))-str2num(line1(startindex1:length(line1)));
+        v_solratios(end+1)=(str2num(line2(startindex2:length(line2)))-str2num(line1(startindex1:length(line1))))/(str2num(line1(startindex1:length(line1))));
     end
     if(~isempty(regexp(line1,'v_solrev')))
         flagrevfluxes=1;
