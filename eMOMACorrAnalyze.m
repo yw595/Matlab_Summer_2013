@@ -2,7 +2,7 @@
 [height width]=size(excnumarray);
 subexcnumarray=excnumarray(8:98,8:width);
 celllinesarray=exctextarray(9,10:2:128);
-outputfile='../eMOMACorrsummarize2/summaryexcludelowcalcFVA.txt';
+outputfile='../eMOMACorrsummarizeconstrainedextra/summaryexcludelowcalcFVA.txt';
 outputFI=fopen(outputfile,'w');
 
 celllinesarray2={};
@@ -20,6 +20,10 @@ allnumexcludedfromlowcalc=[];
 allnumexcludedfromfva=[];
 allnumexcludedfromlowcore=[];
 
+glycinereleasetruepos=0;
+glycinereleasefalseneg=0;
+glycineuptaketruepos=0;
+glycineuptakefalseneg=0;
 for i=1:length(celllinesarray)
     if(~strcmp(celllinesarray{i},'MDA-MB-468') && ~strcmp(celllinesarray{i},'RXF 393'))
         expressionFile=strrep(celllinesarray{i},'(','_');
@@ -27,7 +31,7 @@ for i=1:length(celllinesarray)
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        inputfile=['../eMOMACorrout2/' expressionFile 'out'];
+        inputfile=['../eMOMACorroutconstrainedextra/' expressionFile 'out'];
         inputFI=fopen(inputfile,'r');
         
         line=fgetl(inputFI);
@@ -61,6 +65,7 @@ for i=1:length(celllinesarray)
         numexcludedfromlowcore=0;
         includedinds=[];
         
+        
         disp([celllinesarray{i} '\t']);
         for j=1:size(subexcnumarray(:,i*2),1)
             if(abs(inputvals(j))<.00001)
@@ -91,8 +96,25 @@ for i=1:length(celllinesarray)
                 numzero=numzero+1;
                 includedinds(end+1)=j;
             end
+            if(strcmp(exctextarray{9+j},'glycine'))
+                if(subexcnumarray(j,i*2)>0)
+                    if(inputvals(j)>0)
+                        glycinereleasetruepos=glycinereleasetruepos+1;
+                    else
+                        glycinereleasefalseneg=glycinereleasefalseneg+1;
+                    end
+                elseif(subexcnumarray(j,i*2)<0)
+                    if(inputvals(j)<0)
+                        glycineuptaketruepos=glycineuptaketruepos+1;
+                    else
+                        glycineuptakefalseneg=glycineuptakefalseneg+1;
+                    end
+                end
+                disp([celllinesarray{i} ' ' num2str(subexcnumarray(j,i*2)) ' ' num2str(inputvals(j))]);
+            end
         end
-        %includedinds
+        
+        
         uptakefalsepos=releasefalseneg;
         uptaketrueneg=releasetruepos;
         releasefalsepos=uptakefalseneg;
@@ -136,7 +158,12 @@ for i=1:length(celllinesarray)
         numreleasing,numuptaking,numzero, numexcludedfromlowcalc, numexcludedfromfva, numexcludedfromlowcore);
     end
 end
-
+glycinereleasetruepos
+glycinereleasefalseneg
+glycineuptaketruepos
+glycineuptakefalseneg
+glycinereleasesens=glycinereleasetruepos/(glycinereleasetruepos+glycinereleasefalseneg)
+glycineuptakesens=glycineuptaketruepos/(glycineuptaketruepos+glycineuptakefalseneg)
 allpearsonrho(end+1)=mean(allpearsonrho);
 allspearmanrho(end+1)=mean(allspearmanrho);
 allkendallrho(end+1)=mean(allkendallrho);
@@ -174,7 +201,7 @@ for i=1:length(outputstograph)
     set(gca,'Ylim',ylimstograph{i});
     title(stringstograph{i});
     xticklabel_rotate;
-    saveas(a,['../eMOMACorrsummarize2/' stringstograph{i} 'excludelowcalcFVA.png']);
+    saveas(a,['../eMOMACorrsummarizeconstrainedextra/' stringstograph{i} 'excludelowcalcFVA.png']);
 end
 
 

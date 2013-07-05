@@ -34,6 +34,14 @@ for i=1:length(metsarray)
         excrxnname='EX_sbt-d(e)';
         excrxnind=find(strcmp(excrxnname,model.rxns));
         uniquemetstorxninds(metsarray{i})=excrxnind;
+    elseif(strcmp(metsarray{i},'tyr_l'))
+        excrxnname='EX_tyr_L(e)';
+        excrxnind=find(strcmp(excrxnname,model.rxns));
+        uniquemetstorxninds(metsarray{i})=excrxnind;
+    elseif(strcmp(metsarray{i},'cit/icit'))
+        excrxnname='EX_cit(e)';
+        excrxnind=find(strcmp(excrxnname,model.rxns));
+        uniquemetstorxninds(metsarray{i})=excrxnind;
     else
         excrxnname=strcat('EX_',strcat(metsarray{i},'(e)'));
         excrxnind=find(strcmp(excrxnname,model.rxns));
@@ -48,7 +56,7 @@ for i=1:length(celllinesarray)
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        outputFile=['../eMOMACorroutconstrainedextra/' expressionFile 'out'];
+        outputFile=['../eMOMACorroutconstrainedless/' expressionFile 'out'];
         expressionFile=['../NCI60exp/' expressionFile '.csv'];
         outputFI=fopen(outputFile,'w');
         
