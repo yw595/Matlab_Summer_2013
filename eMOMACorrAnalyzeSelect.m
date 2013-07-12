@@ -2,7 +2,7 @@
 [height width]=size(excnumarray);
 subexcnumarray=excnumarray(8:98,8:width);
 celllinesarray=exctextarray(9,10:2:128);
-outputfile='../eMOMACorrsummarizeconstrainedextra/onlyhighcoresummary.txt';
+outputfile='../eMOMACorrsummarizeconstrainedspecific/onlyhighcoresummary.txt';
 outputFI=fopen(outputfile,'w');
 
 celllinesarray2={};
@@ -35,7 +35,7 @@ for i=1:length(celllinesarray)
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        inputfile=['../eMOMACorroutconstrainedextra/' expressionFile 'out'];
+        inputfile=['../eMOMACorroutconstrainedspecific/' expressionFile 'out'];
         inputFI=fopen(inputfile,'r');
         
         line=fgetl(inputFI);
@@ -235,7 +235,7 @@ for i=1:length(outputstograph)
     set(gca,'Ylim',ylimstograph{i});
     title(stringstograph{i});
     xticklabel_rotate;
-    saveas(a,['../eMOMACorrsummarizeconstrainedextra/' stringstograph{i} 'onlyhighcore.png']);
+    saveas(a,['../eMOMACorrsummarizeconstrainedspecific/' stringstograph{i} 'onlyhighcore.png']);
 end
 
 

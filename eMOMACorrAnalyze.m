@@ -2,9 +2,10 @@
 [height width]=size(excnumarray);
 subexcnumarray=excnumarray(8:98,8:width);
 celllinesarray=exctextarray(9,10:2:128);
-outputfile='../eMOMACorrsummarizeconstrainedextra/summaryexcludelowcalcFVA.txt';
+outputfile='../eMOMACorrsummarizeconstrainedless/summaryexcludeFVA.txt';
 outputFI=fopen(outputfile,'w');
 
+celllinestostats=containers.Map;
 celllinesarray2={};
 allpearsonrho=[];
 allspearmanrho=[];
@@ -26,12 +27,16 @@ glycineuptaketruepos=0;
 glycineuptakefalseneg=0;
 for i=1:length(celllinesarray)
     if(~strcmp(celllinesarray{i},'MDA-MB-468') && ~strcmp(celllinesarray{i},'RXF 393'))
+        if(~isKey(celllinestostats,celllinesarray{i}))
+            celllinestostats(celllinesarray{i})=[];
+        end
+        statsarray=celllinestostats(celllinesarray{i});
         expressionFile=strrep(celllinesarray{i},'(','_');
         expressionFile=strrep(expressionFile,')','_');
         expressionFile=strrep(expressionFile,' ','_');
         expressionFile=strrep(expressionFile,'/','_');
         expressionFile=strrep(expressionFile,'-','_');
-        inputfile=['../eMOMACorroutconstrainedextra/' expressionFile 'out'];
+        inputfile=['../eMOMACorroutconstrainedless/' expressionFile 'out'];
         inputFI=fopen(inputfile,'r');
         
         line=fgetl(inputFI);
@@ -68,9 +73,9 @@ for i=1:length(celllinesarray)
         
         disp([celllinesarray{i} '\t']);
         for j=1:size(subexcnumarray(:,i*2),1)
-            if(abs(inputvals(j))<.00001)
-                numexcludedfromlowcalc=numexcludedfromlowcalc+1;
-            elseif(subexcnumarray(j,i*2)>0 && excnumarray(j+7,3)==0)
+            %if(abs(inputvals(j))<.00001)
+            %    numexcludedfromlowcalc=numexcludedfromlowcalc+1;
+            if(subexcnumarray(j,i*2)>0 && excnumarray(j+7,3)==0)
                 numexcludedfromfva=numexcludedfromfva+1;
             elseif(subexcnumarray(j,i*2)<0 && excnumarray(j+7,1)==0)
                 numexcludedfromfva=numexcludedfromfva+1;
@@ -201,7 +206,7 @@ for i=1:length(outputstograph)
     set(gca,'Ylim',ylimstograph{i});
     title(stringstograph{i});
     xticklabel_rotate;
-    saveas(a,['../eMOMACorrsummarizeconstrainedextra/' stringstograph{i} 'excludelowcalcFVA.png']);
+    saveas(a,['../eMOMACorrsummarizeconstrainedless/' stringstograph{i} 'excludeFVA.png']);
 end
 
 

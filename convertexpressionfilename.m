@@ -1,0 +1,9 @@
+function newFilename = convertexpressionfilename(originalFilename)
+newFilename=strrep(originalFilename,'(','_');
+newFilename=strrep(newFilename,')','_');
+newFilename=strrep(newFilename,' ','_');
+newFilename=strrep(newFilename,'/','_');
+newFilename=strrep(newFilename,'-','_');
+
+end
+

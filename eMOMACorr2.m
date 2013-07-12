@@ -14,7 +14,8 @@ for i=1:length(celllinesarray)
         expressionFileLoc=['../NCI60exp/' expressionFile '.csv'];
         outputFI=fopen(outputFile,'w');
         
-        [v_solirrev v_solrev]=runeMOMA(model,expressionFileLoc);
+        specificmodel=constrainexchange2(model,celllinesarray{i});
+        [v_solirrev v_solrev]=runeMOMA(specificmodel,expressionFileLoc);
         
         fprintf(outputFI,'All fluxes from v_solirrev:\n');
         for j=1:length(v_solirrev)
@@ -30,6 +31,7 @@ for i=1:length(celllinesarray)
             met=jainmetstomets(jainmetsarray{j});
             rxninds=uniquemetstorxninds(met);
             v_solex(j)=sum(v_solrev(rxninds));
+            disp(sprintf('%s\t%f',jainmetsarray{j},v_solex(j)));
             fprintf(outputFI,'%s\t%f\n',jainmetsarray{j},v_solex(j));
         end
         fclose(outputFI);
