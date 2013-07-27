@@ -6,20 +6,6 @@ outputfile='../eMOMACorrsummarizeconstrainedless/summaryexcludeFVA.txt';
 outputFI=fopen(outputfile,'w');
 
 celllinestostats=containers.Map;
-celllinesarray2={};
-allpearsonrho=[];
-allspearmanrho=[];
-allkendallrho=[];
-allcossim=[];
-allavgfluxdiff=[];
-allreleasesens=[];
-alluptakesens=[];
-allnumreleasing=[];
-allnumuptaking=[];
-allnumzero=[];
-allnumexcludedfromlowcalc=[];
-allnumexcludedfromfva=[];
-allnumexcludedfromlowcore=[];
 
 glycinereleasetruepos=0;
 glycinereleasefalseneg=0;
@@ -27,15 +13,9 @@ glycineuptaketruepos=0;
 glycineuptakefalseneg=0;
 for i=1:length(celllinesarray)
     if(~strcmp(celllinesarray{i},'MDA-MB-468') && ~strcmp(celllinesarray{i},'RXF 393'))
-        if(~isKey(celllinestostats,celllinesarray{i}))
-            celllinestostats(celllinesarray{i})=[];
-        end
+        celllinestostats(celllinesarray{i})=zeros(13,1);
         statsarray=celllinestostats(celllinesarray{i});
-        expressionFile=strrep(celllinesarray{i},'(','_');
-        expressionFile=strrep(expressionFile,')','_');
-        expressionFile=strrep(expressionFile,' ','_');
-        expressionFile=strrep(expressionFile,'/','_');
-        expressionFile=strrep(expressionFile,'-','_');
+        expressionFile=convertexpressionfilename(celllinesarray{i});
         inputfile=['../eMOMACorroutconstrainedless/' expressionFile 'out'];
         inputFI=fopen(inputfile,'r');
         
@@ -53,36 +33,24 @@ for i=1:length(celllinesarray)
             line=fgetl(inputFI);
         end
         
-        subexcarrayabs=abs(subexcnumarray(:,i*2));
-        %subexcarraysign=sign(subexcnumarray(:,i*2));
-        [sortsubexcarrayabs sortInds]=sort(subexcarrayabs);
-        %subexcnumarray(sortInds(end-10:end),i*2)
-        
         uptaketruepos=0;
         uptakefalseneg=0;
         releasetruepos=0;
         releasefalseneg=0;
-        numreleasing=0;
-        numuptaking=0;
-        numzero=0;
-        numexcludedfromlowcalc=0;
-        numexcludedfromfva=0;
-        numexcludedfromlowcore=0;
         includedinds=[];
-        
         
         disp([celllinesarray{i} '\t']);
         for j=1:size(subexcnumarray(:,i*2),1)
             %if(abs(inputvals(j))<.00001)
-            %    numexcludedfromlowcalc=numexcludedfromlowcalc+1;
+            %    statsarray(11)=statsarray(11)+1;
             if(subexcnumarray(j,i*2)>0 && excnumarray(j+7,3)==0)
-                numexcludedfromfva=numexcludedfromfva+1;
+                statsarray(12)=statsarray(12)+1;
             elseif(subexcnumarray(j,i*2)<0 && excnumarray(j+7,1)==0)
-                numexcludedfromfva=numexcludedfromfva+1;
+                statsarray(12)=statsarray(12)+1;
             %elseif(abs(subexcnumarray(j,i*2))<=.0001)
-            %    numexcludedfromlowcore=numexcludedfromlowcore+1;
+            %    statsarray(11)=statsarray(11)+1;
             elseif(subexcnumarray(j,i*2)>0)
-                numreleasing=numreleasing+1;
+                statsarray(8)=statsarray(8)+1;
                 includedinds(end+1)=j;
                 if(inputvals(j)>0)
                     releasetruepos=releasetruepos+1;
@@ -90,7 +58,7 @@ for i=1:length(celllinesarray)
                     releasefalseneg=releasefalseneg+1;
                 end
             elseif(subexcnumarray(j,i*2)<0)
-                numuptaking=numuptaking+1;
+                statsarray(9)=statsarray(9)+1;
                 includedinds(end+1)=j;
                 if(inputvals(j)<0)
                     uptaketruepos=uptaketruepos+1;
@@ -98,7 +66,7 @@ for i=1:length(celllinesarray)
                     uptakefalseneg=uptakefalseneg+1;
                 end
             else
-                numzero=numzero+1;
+                statsarray(10)=statsarray(10)+1;
                 includedinds(end+1)=j;
             end
             if(strcmp(exctextarray{9+j},'glycine'))
@@ -119,48 +87,20 @@ for i=1:length(celllinesarray)
             end
         end
         
-        
         uptakefalsepos=releasefalseneg;
         uptaketrueneg=releasetruepos;
         releasefalsepos=uptakefalseneg;
         releasetrueneg=uptaketruepos;
         
-        uptakesens=uptaketruepos/(uptaketruepos+uptakefalseneg);
-        releasesens=releasetruepos/(releasetruepos+releasefalseneg);
-        disp([num2str(uptakesens) ' ' num2str(releasesens)]);
+        statsarray(6)=releasetruepos/(releasetruepos+releasefalseneg);
+        statsarray(7)=uptaketruepos/(uptaketruepos+uptakefalseneg);
+        statsarray(1)=corr(inputvals(includedinds),subexcnumarray(includedinds,i*2),'type','Pearson');
+        statsarray(2)=corr(inputvals(includedinds),subexcnumarray(includedinds,i*2),'type','Spearman');
+        statsarray(3)=corr(inputvals(includedinds),subexcnumarray(includedinds,i*2),'type','Kendall');
+        statsarray(4)=(inputvals(includedinds)'*subexcnumarray(includedinds,i*2))/(norm(inputvals(includedinds))*norm(subexcnumarray(includedinds,i*2)));
+        statsarray(5)=mean(inputvals(includedinds)-subexcnumarray(includedinds,i*2));
         
-        [emomapearsonrho emomapearsonpval]=corr(inputvals(includedinds),subexcnumarray(includedinds,i*2),'type','Pearson');
-        [emomaspearmanrho emomaspearmanpval]=corr(inputvals(includedinds),subexcnumarray(includedinds,i*2),'type','Spearman');
-        [emomakendallrho emomakendallpval]=corr(inputvals(includedinds),subexcnumarray(includedinds,i*2),'type','Kendall');
-        cossim=(inputvals(includedinds)'*subexcnumarray(includedinds,i*2))/(norm(inputvals(includedinds))*norm(subexcnumarray(includedinds,i*2)));
-        avgfluxdiff=mean(inputvals(includedinds)-subexcnumarray(includedinds,i*2));
-        
-        allpearsonrho(end+1)=emomapearsonrho;
-        allspearmanrho(end+1)=emomaspearmanrho;
-        allkendallrho(end+1)=emomakendallrho;
-        allcossim(end+1)=cossim;
-        allavgfluxdiff(end+1)=avgfluxdiff;
-        allreleasesens(end+1)=releasesens;
-        alluptakesens(end+1)=uptakesens;
-        allnumreleasing(end+1)=numreleasing;
-        allnumuptaking(end+1)=numuptaking;
-        allnumzero(end+1)=numzero;
-        allnumexcludedfromlowcalc(end+1)=numexcludedfromlowcalc;
-        allnumexcludedfromfva(end+1)=numexcludedfromfva;
-        allnumexcludedfromlowcore(end+1)=numexcludedfromlowcore;
-        celllinesarray2{end+1}=celllinesarray{i};
-        
-        fprintf(outputFI,'%s\n',celllinesarray2{end}); 
-        fprintf(outputFI,'pearson corr: %f\n', emomapearsonrho);
-        fprintf(outputFI,'spearman corr: %f\n', emomaspearmanrho);
-        fprintf(outputFI,'kendall corr: %f\n', emomakendallrho);
-        fprintf(outputFI,'cosine sim: %f\n', cossim);
-        fprintf(outputFI,'avg flux diff: %f\n', avgfluxdiff);
-        fprintf(outputFI,'uptakesens: %f\n', uptakesens);
-        fprintf(outputFI,'releasesens: %f\n', releasesens);
-        %fprintf(outputFI,'releasetruepos: %d releasefalseneg: %d uptaketruepos: %d uptakefalseneg: %d\n',releasetruepos,releasefalseneg,uptaketruepos,uptakefalseneg);
-        fprintf(outputFI,'numreleasing: %d numuptaking: %d numzero: %d numexcluded: %d numexcludedfromfva: %d numexcludedfromlowcore: %d\n',...
-        numreleasing,numuptaking,numzero, numexcludedfromlowcalc, numexcludedfromfva, numexcludedfromlowcore);
+        celllinestostats(celllinesarray{i})=statsarray;
     end
 end
 glycinereleasetruepos
@@ -169,20 +109,13 @@ glycineuptaketruepos
 glycineuptakefalseneg
 glycinereleasesens=glycinereleasetruepos/(glycinereleasetruepos+glycinereleasefalseneg)
 glycineuptakesens=glycineuptaketruepos/(glycineuptaketruepos+glycineuptakefalseneg)
-allpearsonrho(end+1)=mean(allpearsonrho);
-allspearmanrho(end+1)=mean(allspearmanrho);
-allkendallrho(end+1)=mean(allkendallrho);
-allcossim(end+1)=mean(allcossim);
-allavgfluxdiff(end+1)=mean(allavgfluxdiff);
-allreleasesens(end+1)=mean(allreleasesens);
-alluptakesens(end+1)=mean(alluptakesens);
-allnumreleasing(end+1)=mean(allnumreleasing);
-allnumuptaking(end+1)=mean(allnumuptaking);
-allnumzero(end+1)=mean(allnumzero);
-allnumexcludedfromlowcalc(end+1)=mean(allnumexcludedfromlowcalc);
-allnumexcludedfromfva(end+1)=mean(allnumexcludedfromfva);
-allnumexcludedfromlowcore(end+1)=mean(allnumexcludedfromlowcore);
-celllinesarray2{end+1}='Average';
+celllinestostats('Average')=zeros(13,1);
+for i=1:length(celllinesarray)
+    if(~strcmp(celllinesarray{i},'MDA-MB-468') && ~strcmp(celllinesarray{i},'RXF 393'))
+        celllinestostats('Average')=celllinestostats('Average')+cellllinestostats(celllinesarray{i});
+    end
+    celllinestostats('Average')=celllinestostats('Average')/(length(celllinesarray)-2);
+end
 fprintf(outputFI,'%s\n',celllinesarray2{end}); 
 fprintf(outputFI,'pearson corr: %f\n', allpearsonrho(end));
 fprintf(outputFI,'spearman corr: %f\n', allspearmanrho(end));

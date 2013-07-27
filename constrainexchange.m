@@ -5,7 +5,7 @@ jainmetsarray=exctextarray(10:100,1);
 metsarray=exctextarray(10:100,2);
 jainmetstomets=containers.Map(jainmetsarray,metsarray);
 uniquemetsarray=values(jainmetstomets);
-uniquemetstoexcrxnnames=metstoexcrxns(metsarray,model1,2);
+uniquemetstoexcrxnnames=metstoexcrxns(metsarray,model1,0);
 
 exctokeep={'EX_gly(e)','EX_arg_L(e)','EX_asp_L(e)','EX_asn_L(e)','EX_cys_L(e)','EX_glu_L(e)','EX_gln_L(e)','EX_his_L(e)','EX_4hpro(e)','EX_ile_L(e)','EX_leu_L(e)',...
 'EX_lys_L(e)','EX_met_L(e)','EX_phe_L(e)','EX_pro_L(e)','EX_ser_L(e)','EX_thr_L(e)','EX_trp_L(e)','EX_tyr_L(e)','EX_val_L(e)','EX_btn(e)','EX_chol(e)','EX_pnto_R(e)',...

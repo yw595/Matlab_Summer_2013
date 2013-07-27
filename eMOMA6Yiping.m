@@ -81,9 +81,9 @@ end
 nvar = upt_const{1};
 nvarp = nvar;
 uptake        = find(strcmp(gene_to_scale{1},m.rxnNames));
-r_sd          = r_sd/r(uptake);
+r_sd          = nvar * r_sd/r(uptake);
 r_pri_max = max(r);
-r             = r/r(uptake);
+r             = nvar * r/r(uptake);
 %disp('Max r (scaled r) is:');
 %disp([r_pri_max max(r)]);
 
